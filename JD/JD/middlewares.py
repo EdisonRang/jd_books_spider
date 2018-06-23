@@ -5,7 +5,9 @@
 # See documentation in:
 # https://doc.scrapy.org/en/latest/topics/spider-middleware.html
 
+import random
 from scrapy import signals
+from JD.settings import IPPOOL
 
 
 class JdSpiderMiddleware(object):
@@ -101,3 +103,11 @@ class JdDownloaderMiddleware(object):
 
     def spider_opened(self, spider):
         spider.logger.info('Spider opened: %s' % spider.name)
+
+
+class MyproxiesSpiderMiddleware(object):
+
+    def process_request(self, request, spider):
+        ip = random.choice(IPPOOL)
+        request.meta["proxy"] = ip["ipaddr"]
+
