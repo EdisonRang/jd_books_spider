@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import scrapy
 
+from JD.items import JdItem
+
 
 class JdBooksSpider(scrapy.Spider):
     name = 'JD_Books'
@@ -21,17 +23,36 @@ class JdBooksSpider(scrapy.Spider):
             for small in small_list:
                 small_category = small.xpath('./text()').extract_first()
                 small_category_link = "https:" + small.xpath('./@href').extract_first()
-                temp ={}
-                temp['big_category'] = big_category
-                temp['big_category_link'] = big_category_link
-                temp['small_category'] = small_category
-                temp['small_category_link'] = small_category_link
+                data ={}
+                data['big_category'] = big_category
+                data['big_category_link'] = big_category_link
+                data['small_category'] = small_category
+                data['small_category_link'] = small_category_link
                 yield scrapy.Request(
-                    url=temp['small_category_link'],
+                    url=data['small_category_link'],
                     callback=self.parse_detail,
-                    meta={"meta_1":temp}
+                    meta={"meta_1":data}
                 )
 
-    def parse_detail(self):
-        pass
+    def parse_detail(self, response):
+        data = response.request.meta['meta_1']
+        # 获取所有图书节点列表
+        books = response.xpath('//*[@id="plist"]/ul/li/div')
+        # 创建item对象
+        item = JdItem()
+        # 遍历节点
+        for book in books:
+            item['big_category'] = data['big_category']
+            item['big_category_link'] = data['big_category_link']
+            item['small_category'] = data['small_category']
+            item['small_category_link'] = data['small_category_link']
+
+            item['book_name'] = book.xpath('./div[3]/a/text()').extract_first()
+            item['book_cover'] = book.xpath('./div[1]/a/img/@src|./div[1]/a/img/@data-lazy-img').extract_first()
+            item['detail_link'] = book.xpath('./div[1]/a/@href').extract_first()
+            item['author'] = book.xpath('./div[4]/span[1]/span/a/text()').extract_first()
+            item['publisher'] = book.xpath('./div[4]/span[2]/a/text()').extract_first()
+            item['pub_data'] = book.xpath('./div[4]/span[3]/text()').extract_first()
+            item['price'] = book.xpath('./div[2]/strong[1]/i/text()').extract_first()
+            yield item
 
