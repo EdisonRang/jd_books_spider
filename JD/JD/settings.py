@@ -14,6 +14,11 @@ BOT_NAME = 'JD'
 SPIDER_MODULES = ['JD.spiders']
 NEWSPIDER_MODULE = 'JD.spiders'
 
+MONGO_HOST = '127.0.0.1'
+MONGO_PORT = 27017
+MONGO_DB = 'JD_Books'
+MONGO_COL = 'Books'
+
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.87 Safari/537.36'
@@ -66,9 +71,10 @@ DOWNLOADER_MIDDLEWARES = {
 
 # Configure item pipelines
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
-#ITEM_PIPELINES = {
-#    'JD.pipelines.JdPipeline': 300,
-#}
+ITEM_PIPELINES = {
+    'JD.pipelines.JdPipeline': 300,
+    'JD.pipelines.MongoPipeline': 301,
+}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://doc.scrapy.org/en/latest/topics/autothrottle.html
