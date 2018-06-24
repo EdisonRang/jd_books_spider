@@ -4,10 +4,12 @@
 #
 # See documentation in:
 # https://doc.scrapy.org/en/latest/topics/spider-middleware.html
-
+import base64
 import random
 from scrapy import signals
 from JD.settings import IPPOOL
+
+from JD.settings import UA_LIST
 
 
 class JdSpiderMiddleware(object):
@@ -105,9 +107,19 @@ class JdDownloaderMiddleware(object):
         spider.logger.info('Spider opened: %s' % spider.name)
 
 
+class RandomUserAgent(object):
+
+    def process_request(self, request, spider):
+        # 随机获取一个用户代理
+        ua = random.choice(UA_LIST)
+
+        # 设置用户代理,如果请求需要去下载器使用，那么不需要返回，只需要队请求的相应参数多修改就好
+        request.headers['User-Agent'] = ua
+
+
 class MyproxiesSpiderMiddleware(object):
 
     def process_request(self, request, spider):
         ip = random.choice(IPPOOL)
-        request.meta["proxy"] = ip["ipaddr"]
+        request.meta['proxy'] = ip['ipaddr']
 

@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import json
+
 import scrapy
 
 from JD.items import JdItem
@@ -47,12 +49,29 @@ class JdBooksSpider(scrapy.Spider):
             item['small_category'] = data['small_category']
             item['small_category_link'] = data['small_category_link']
 
-            item['book_name'] = book.xpath('./div[3]/a/text()').extract_first()
+            item['book_name'] = book.xpath('./div[3]/a/em/text()').extract_first()
             item['book_cover'] = book.xpath('./div[1]/a/img/@src|./div[1]/a/img/@data-lazy-img').extract_first()
-            item['detail_link'] = book.xpath('./div[1]/a/@href').extract_first()
+            try:
+                item['detail_link'] = 'https:' + book.xpath('./div[1]/a/@href').extract_first()
+            except:
+                item['detail_link'] = None
             item['author'] = book.xpath('./div[4]/span[1]/span/a/text()').extract_first()
             item['publisher'] = book.xpath('./div[4]/span[2]/a/text()').extract_first()
             item['pub_data'] = book.xpath('./div[4]/span[3]/text()').extract_first()
-            item['price'] = book.xpath('./div[2]/strong[1]/i/text()').extract_first()
-            yield item
+            # item['price'] = book.xpath('./div[2]/strong[1]/i/text()').extract_first()
+            # yield item
+            skuid = book.xpath('./@data-sku').extract_first()
+            if skuid != None:
+                # 拼接价格url
+                price_url = 'https://p.3.cn/prices/mgets?skuIds=J_' + str(skuid)
+                yield scrapy.Request(
+                url=price_url,
+                callback=self.parse_price,
+                meta={'meta_2': item}
+            )
 
+    def parse_price(self, response):
+        item = response.request.meta['meta_2']
+        dict_data = json.loads(response.body)
+        item['price'] = dict_data[0]['op']
+        yield item
