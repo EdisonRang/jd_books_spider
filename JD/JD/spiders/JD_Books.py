@@ -1,16 +1,29 @@
 # -*- coding: utf-8 -*-
 import json
-
 import scrapy
-
 from JD.items import JdItem
+# 1.导数爬虫类
+from scrapy_redis.spiders import RedisSpider
 
+# 2.修改继承类
+class JdBooksSpider(RedisSpider):
+    # 3.注销起始url和允许的域
+    # name = 'JD_Books'
+    # allowed_domains = ['jd.com']
+    # # 修改起始URL
+    # start_urls = ['https://book.jd.com/booksort.html']
 
-class JdBooksSpider(scrapy.Spider):
-    name = 'JD_Books'
-    allowed_domains = ['jd.com']
-    # 修改起始URL
-    start_urls = ['https://book.jd.com/booksort.html']
+    # 4.动态获取允许域
+    def __init__(self, *args, **kwargs):
+        # Dynamically define the allowed domains list.
+        domain = kwargs.pop('domain', '')
+        # 需要强转成列表
+        self.allowed_domains = list(filter(None, domain.split(',')))
+        # 需要修改类
+        super(JdBooksSpider, self).__init__(*args, **kwargs)
+
+    # 5.设置redis_key
+    redis_key = "JD"
 
     def parse(self, response):
         # 获取大分类节点列表

@@ -48,6 +48,16 @@ UA_LIST = [
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.87 Safari/537.36'
 
+# 替换模块，使用scrapy_redis相关组件，新组建将具有与redis数据库交互的功能
+DUPEFILTER_CLASS = 'scrapy_redis.dupefilter.RFPDupeFilter'
+SCHEDULER = 'scrapy_redis.scheduler.Scheduler'
+# 设置是否在爬虫中断运行之后是否保持任务队列
+SCHEDULER_PERSIST = True
+# 选择调度器队列类型，默认不需要配置
+#SCHEDULER_QUEUE_CLASS = "scrapy_redis.queue.SpiderPriorityQueue"
+#SCHEDULER_QUEUE_CLASS = "scrapy_redis.queue.SpiderQueue"
+#SCHEDULER_QUEUE_CLASS = "scrapy_redis.queue.SpiderStack"
+
 # Obey robots.txt rules
 # ROBOTSTXT_OBEY = True
 
@@ -122,3 +132,6 @@ ITEM_PIPELINES = {
 #HTTPCACHE_DIR = 'httpcache'
 #HTTPCACHE_IGNORE_HTTP_CODES = []
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
+
+# 配置redis数据库链接
+REDIS_URL = 'redis://127.0.0.1:6379'
